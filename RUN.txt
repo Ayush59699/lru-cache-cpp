@@ -1,0 +1,47 @@
+LRU Cache C++ Build and Run Guide
+==================================
+
+Follow these steps to compile and execute all tests, benchmarks, and stress tests on Windows using PowerShell or Command Prompt.
+
+Step 1: Open Terminal
+--------------------
+Open PowerShell or Command Prompt and navigate to the project directory:
+cd "d:\ANTIGRAVITY TESTS\LRU_CACHE_C++"
+
+Step 2: Build the Targets
+------------------------
+Create a build directory, generate build files, and compile the executables in Release mode (essential for correct benchmarks):
+
+# Remove old build directory if it exists
+Remove-Item -Recurse -Force build -ErrorAction SilentlyContinue
+
+# Create and enter the build directory
+mkdir build
+cd build
+
+# Generate build configuration
+cmake -DCMAKE_BUILD_TYPE=Release ..
+
+# Compile the executables
+cmake --build . --config Release
+
+Step 3: Run the Programs
+-----------------------
+Execute the generated binaries from within the "build" directory:
+
+1. Functional Correctness Tests:
+   ./test_lru.exe
+
+2. Concurrency Stress Test (50 threads / 20 Million operations):
+   ./stress_test.exe
+
+3. High-Performance Benchmarks (Throughput, Latency, and Hit-ratio simulation):
+   ./benchmark.exe
+
+4. Baseline comparison against std::unordered_map:
+   ./comparison.exe
+
+Checking Results
+----------------
+After executing the benchmark executable, you can view the exported metrics in:
+results/benchmark_results.csv

@@ -22,3 +22,7 @@ compile_commands.json
 # macOS metadata
 ._*
 .DS_Store
+
+# Local guides
+RUN.txt
+

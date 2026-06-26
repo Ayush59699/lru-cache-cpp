@@ -35,6 +35,16 @@ The following measurements were collected on a multi-core processor running Rele
 - **std::unordered_map**: ~12 bytes per element.
 - **LRUCache Memory Amplification**: ~2.33x standard hashmap baseline.
 
+### Performance Analysis & Concurrency Bottlenecks
+
+As observed in the benchmarks above, increasing the thread count leads to an increase in total execution time and a decrease in throughput. 
+
+- **The Lock Contention Bottleneck**: The primary performance limiter under high concurrency is **lock contention** caused by the single, coarse-grained mutex (`std::mutex`) protecting the entire cache structure. Even though get/put operations are O(1), threads are forced to wait in a serialized queue to acquire the lock.
+- **Active Improvements / Future Work**: Work is currently underway to replace this coarse-grained locking scheme. Planned implementations include:
+  1. **Cache Sharding / Segmented Locking**: Partitioning the key space across multiple smaller cache buckets, each protected by its own independent lock (reducing contention probability).
+  2. **Read-Write Mutexes**: Utilizing `std::shared_mutex` to allow concurrent lock-free reads (`get`) when no writes are pending.
+  3. **Lock-Free Structs**: Investigating hazard pointers and lock-free lists to decouple synchronization from the hot path entirely.
+
 ---
 
 ## Features

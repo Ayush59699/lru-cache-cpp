@@ -67,6 +67,24 @@ public:
         list_.clear();
     }
 
+    bool validate_internal_state() const {
+        std::lock_guard<std::mutex> lock(mutex_);
+        if (list_.size() > capacity_) {
+            return false;
+        }
+        if (map_.size() != list_.size()) {
+            return false;
+        }
+        // Verify every hashmap entry points to a valid list node
+        for (const auto& [key, list_it] : map_) {
+            // Find key in list by traversing, or check that it maps back to the same key
+            if (list_it->first != key) {
+                return false;
+            }
+        }
+        return true;
+    }
+
 private:
     size_t capacity_;
     std::list<std::pair<K, V>> list_; // Doubly linked list to track usage order

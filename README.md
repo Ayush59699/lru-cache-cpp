@@ -4,6 +4,39 @@ A generic, high-performance LRU (Least Recently Used) Cache implemented in moder
 
 ---
 
+## Metrics and Benchmarks
+
+The following measurements were collected on a multi-core processor running Release mode builds:
+
+### Performance & Latency (10 Million operations: 70% get, 30% put)
+
+| Threads | Total Ops | Time (ms) | Throughput (ops/sec) | P50 Latency (ns) | P95 Latency (ns) | P99 Latency (ns) |
+|---|---|---|---|---|---|---|
+| 1 | 10M | 2182.1 | 4,582,800 | 0 | 1000 | 2000 |
+| 2 | 10M | 2789.7 | 3,584,604 | 0 | 1000 | 83000 |
+| 4 | 10M | 2592.8 | 3,856,875 | 0 | 1000 | 151000 |
+| 8 | 10M | 3310.3 | 3,020,844 | 0 | 1000 | 328000 |
+| 16 | 10M | 3210.7 | 3,114,603 | 0 | 1000 | 439000 |
+| 32 | 10M | 3306.1 | 3,024,743 | 0 | 1000 | 423000 |
+
+### Cache Hit Ratio Simulation (5 Million operations, capacity = 1000)
+- Workload: 80% requests to hot keys (200 keys), 20% requests to cold keys (many keys)
+- **Cache Hit Ratio: 80.2%** (Hits: 4,007,780, Misses: 992,220)
+
+### Baseline Comparison (1 Million operations: LRUCache vs mutex-guarded std::unordered_map)
+
+| Operation | LRUCache (ms) | Thread-Safe std::unordered_map (ms) | Speed Overhead |
+|---|---|---|---|
+| Insert (Put) | 237.5 | 119.7 | 1.98x slower |
+| Lookup (Get) | 11.1 | 9.3 | 1.19x slower |
+
+#### Memory Footprint Comparison
+- **LRUCache**: ~28 bytes per element (extra list node overhead + hash index entries + iterator pointers).
+- **std::unordered_map**: ~12 bytes per element.
+- **LRUCache Memory Amplification**: ~2.33x standard hashmap baseline.
+
+---
+
 ## Features
 
 - O(1) Performance — Both reads and writes run in constant time.
@@ -105,39 +138,6 @@ Alternatively, run the automated script from the root directory:
 ```bash
 ./scripts/run_all.sh
 ```
-
----
-
-## Metrics and Benchmarks
-
-The following measurements were collected on a multi-core processor running Release mode builds:
-
-### Performance & Latency (10 Million operations: 70% get, 30% put)
-
-| Threads | Total Ops | Time (ms) | Throughput (ops/sec) | P50 Latency (ns) | P95 Latency (ns) | P99 Latency (ns) |
-|---|---|---|---|---|---|---|
-| 1 | 10M | 2182.1 | 4,582,800 | 0 | 1000 | 2000 |
-| 2 | 10M | 2789.7 | 3,584,604 | 0 | 1000 | 83000 |
-| 4 | 10M | 2592.8 | 3,856,875 | 0 | 1000 | 151000 |
-| 8 | 10M | 3310.3 | 3,020,844 | 0 | 1000 | 328000 |
-| 16 | 10M | 3210.7 | 3,114,603 | 0 | 1000 | 439000 |
-| 32 | 10M | 3306.1 | 3,024,743 | 0 | 1000 | 423000 |
-
-### Cache Hit Ratio Simulation (5 Million operations, capacity = 1000)
-- Workload: 80% requests to hot keys (200 keys), 20% requests to cold keys (many keys)
-- **Cache Hit Ratio: 80.2%** (Hits: 4,007,780, Misses: 992,220)
-
-### Baseline Comparison (1 Million operations: LRUCache vs mutex-guarded std::unordered_map)
-
-| Operation | LRUCache (ms) | Thread-Safe std::unordered_map (ms) | Speed Overhead |
-|---|---|---|---|
-| Insert (Put) | 237.5 | 119.7 | 1.98x slower |
-| Lookup (Get) | 11.1 | 9.3 | 1.19x slower |
-
-#### Memory Footprint Comparison
-- **LRUCache**: ~28 bytes per element (extra list node overhead + hash index entries + iterator pointers).
-- **std::unordered_map**: ~12 bytes per element.
-- **LRUCache Memory Amplification**: ~2.33x standard hashmap baseline.
 
 ---
 
